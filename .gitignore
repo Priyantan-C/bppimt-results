@@ -1,0 +1,15 @@
+# Student data must never be committed
+*.xlsx
+*.xls
+*.csv
+*.pdf
+*.json
+!composer.json
+!package.json
+# Local noise
+.DS_Store
+Thumbs.db
+*.zip
+*.log
+__pycache__/
+node_modules/

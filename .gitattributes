@@ -1,0 +1,6 @@
+# Left out of "Download ZIP", so the installed plugin contains only what WordPress needs
+/tools export-ignore
+/.gitignore export-ignore
+/.gitattributes export-ignore
+/README.md export-ignore
+/CHANGELOG.md export-ignore
