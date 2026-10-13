@@ -6,13 +6,36 @@ result in one design, lets editors correct tables in a grid, and imports the uni
 - Attaches to the existing `result` post type and Academic Year taxonomy.
 - Requires WordPress 6.0+ and PHP 7.4+. No build step and no external libraries.
 
-## Install or update
+## Install
 
-1. Download this repository as a zip (Code > Download ZIP), or zip the folder as `bppimt-results`.
-2. In WordPress: Plugins > Add New > Upload Plugin. When updating, choose "Replace current with uploaded".
-3. Purge the page cache and the Autoptimize cache.
+1. Download `bppimt-results.zip` from the latest release (Releases on the right).
+2. In WordPress: Plugins > Add New > Upload Plugin.
+3. Private repository: add a read-only token to `wp-config.php` so the site can see updates (see below).
 
 Stored tables live in post meta and are not affected by updating or deactivating the plugin.
+
+## Updates
+
+Sites check this repository's latest release every 12 hours and offer it like any other plugin update
+(Plugins, Dashboard > Updates, "update now"; automatic updates can be switched on per site). The Plugins screen
+also has a "Check for updates" link that checks straight away.
+
+**Making a release:** raise the version in three places, add a `## x.y.z` section to `CHANGELOG.md`, push to `main`:
+
+- `bppimt-results.php`: the `Version:` line and `BPPIMT_RESULTS_VERSION`
+- `readme.txt`: `Stable tag:`
+
+The `Release` workflow then tags `vx.y.z`, publishes the release with that changelog section as notes, and
+attaches `bppimt-results.zip`. Pushes that do not change the version do not make a release.
+
+**Private repository:** each site needs a fine-grained GitHub token with access to this repository only and the
+permission *Contents: Read-only*, added to `wp-config.php`:
+
+```php
+define( 'BPPIMT_RESULTS_GITHUB_TOKEN', 'github_pat_...' );
+```
+
+Without it the site cannot see private releases (the Plugins screen says so after "Check for updates").
 
 ## Everyday use
 
@@ -36,6 +59,8 @@ between the original page content and the new tables. "Upload result Excel" take
 | `assets/download.js` | "Download Excel", built in the visitor's browser |
 | `assets/import.js` | Tools > Import Result Tables |
 | `assets/listing.js`, `listing.css` | Year filter and cards for the listing |
+| `includes/updater.php` | Updates from GitHub releases |
+| `.github/workflows/release.yml` | Makes a release when the version changes on `main` |
 | `tools/` | Offline scripts, not part of the installed plugin (see below) |
 
 ## Common changes
@@ -45,7 +70,6 @@ between the original page content and the new tables. "Upload result Excel" take
 - **New heading typo from the university:** `HEADER_FIXES` in `assets/normalize.js`.
 - **Colours:** the tables read the theme palette (`--accent-2`, `--purple`, `--accent-3` ...). Override the
   `--bppimt-*` variables on `.bppimt-results` to change only the tables.
-- **Releasing:** bump the version in `bppimt-results.php` and `readme.txt`, add a line to `CHANGELOG.md`, tag it.
 
 ## tools/
 

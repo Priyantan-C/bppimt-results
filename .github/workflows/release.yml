@@ -1,0 +1,51 @@
+# Push a commit that raises the Version in bppimt-results.php to main, and this makes the release:
+# it tags v<version>, uses that version's section of CHANGELOG.md as the notes, and attaches
+# bppimt-results.zip (an installable plugin). Sites running the plugin then see the update.
+name: Release
+
+on:
+  push:
+    branches: [main]
+    paths: [bppimt-results.php]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Read the version
+        id: v
+        run: |
+          VERSION=$(grep -m1 -E '^\s*\*\s*Version:' bppimt-results.php | sed -E 's/.*Version:\s*//; s/\s+$//')
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          if git rev-parse "v$VERSION" >/dev/null 2>&1; then echo "exists=yes" >> "$GITHUB_OUTPUT"; else echo "exists=no" >> "$GITHUB_OUTPUT"; fi
+
+      - name: Check the version is the same everywhere
+        if: steps.v.outputs.exists == 'no'
+        run: |
+          V="${{ steps.v.outputs.version }}"
+          grep -q "define( 'BPPIMT_RESULTS_VERSION', '$V' );" bppimt-results.php || { echo "BPPIMT_RESULTS_VERSION does not match $V"; exit 1; }
+          grep -q "Stable tag: $V" readme.txt || { echo "readme.txt Stable tag does not match $V"; exit 1; }
+
+      - name: Build the plugin zip and the release notes
+        if: steps.v.outputs.exists == 'no'
+        run: |
+          V="${{ steps.v.outputs.version }}"
+          git archive --format=zip --prefix=bppimt-results/ HEAD -o bppimt-results.zip
+          awk -v v="$V" '$0 ~ "^## "v"( |$)" {on=1; next} /^## / {on=0} on' CHANGELOG.md > notes.md
+          if [ ! -s notes.md ]; then echo "See CHANGELOG.md" > notes.md; fi
+
+      - name: Publish the release
+        if: steps.v.outputs.exists == 'no'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          V="${{ steps.v.outputs.version }}"
+          gh release create "v$V" bppimt-results.zip --title "BPPIMT Results $V" --notes-file notes.md --target "$GITHUB_SHA"

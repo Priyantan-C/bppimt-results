@@ -33,7 +33,8 @@
 .bppimt-list__group + .bppimt-list__group { margin-top: 32px; }
 .bppimt-list .bppimt-list__heading { margin: 0 0 14px; font-size: 1.35rem; line-height: 1.3; color: var(--bppimt-l-head); }
 .bppimt-list:not(.is-all) .bppimt-list__heading { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
-.bppimt-list .bppimt-list__grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; margin: 0; padding: 0; list-style: none; }
+/* At most 4 cards per row; fewer when a card would get narrower than 260px. */
+.bppimt-list .bppimt-list__grid { --bppimt-l-gap: 16px; display: grid; grid-template-columns: repeat(auto-fill, minmax(max(260px, calc((100% - 3 * var(--bppimt-l-gap)) / 4)), 1fr)); gap: var(--bppimt-l-gap); margin: 0; padding: 0; list-style: none; }
 .bppimt-list .bppimt-list__item { margin: 0; padding: 0; }
 
 /* Card: semester tile on the left, title and year, arrow. Lifts slightly on hover. */

@@ -1,7 +1,7 @@
 === BPPIMT Results ===
 Requires at least: 6.0
 Requires PHP: 7.4
-Stable tag: 1.2.1
+Stable tag: 1.3.0
 
 Stores semester results as tables, shows every result in one design, and imports the university Excel file directly.
 

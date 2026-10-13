@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.3.0 (2026-10-13)
+- Automatic updates from GitHub: sites see new versions under Plugins and Dashboard > Updates, with "update now",
+  release notes under "View version details", automatic updates if switched on, and a "Check for updates" link.
+  Private repository: add `BPPIMT_RESULTS_GITHUB_TOKEN` (read-only token) to wp-config.php.
+- Releases are made by GitHub Actions when a commit raising the version reaches `main`: tag, notes from this
+  changelog, and an installable `bppimt-results.zip`.
+- Results listing: at most 4 cards per row on wide screens.
+
 ## 1.2.1 (2026-10-13)
 - Fonts: the plugin names no fonts of its own; everything uses the site's fonts. Listing card titles are headings,
   so they take the theme's heading font on any site.
