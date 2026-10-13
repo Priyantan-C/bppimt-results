@@ -110,7 +110,7 @@ add_filter(
 			}
 		}
 		return (object) array(
-			'name'          => 'BPPIMT Results',
+			'name'          => 'MAKAUT Result Parser',
 			'slug'          => 'bppimt-results',
 			'version'       => $release ? $release['version'] : BPPIMT_RESULTS_VERSION,
 			'author'        => 'SynerByte Tech LLP',
@@ -203,9 +203,9 @@ add_action(
 		}
 		$state = sanitize_key( $_GET['bppimt_results_checked'] ); // phpcs:ignore WordPress.Security.NonceVerification
 		$text  = array(
-			'new'  => array( 'success', 'BPPIMT Results: a new version is available. Use "update now" below.' ),
-			'none' => array( 'info', 'BPPIMT Results is up to date.' ),
-			'fail' => array( 'error', 'BPPIMT Results could not reach GitHub. If the repository is private, check BPPIMT_RESULTS_GITHUB_TOKEN in wp-config.php.' ),
+			'new'  => array( 'success', 'MAKAUT Result Parser: a new version is available. Use "update now" below.' ),
+			'none' => array( 'info', 'MAKAUT Result Parser is up to date.' ),
+			'fail' => array( 'error', 'MAKAUT Result Parser could not reach GitHub. If the repository is private, check BPPIMT_RESULTS_GITHUB_TOKEN in wp-config.php.' ),
 		);
 		if ( isset( $text[ $state ] ) ) {
 			printf( '<div class="notice notice-%s is-dismissible"><p>%s</p></div>', esc_attr( $text[ $state ][0] ), esc_html( $text[ $state ][1] ) );

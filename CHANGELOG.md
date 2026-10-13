@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.3.1 (2026-10-13)
+- Renamed to **MAKAUT Result Parser**. Only the display name changed: the plugin's folder and file stay
+  `bppimt-results`, so installed sites keep receiving updates and nothing needs reinstalling. Stored results are untouched.
+
 ## 1.3.0 (2026-10-13)
 - Automatic updates from GitHub: sites see new versions under Plugins and Dashboard > Updates, with "update now",
   release notes under "View version details", automatic updates if switched on, and a "Check for updates" link.

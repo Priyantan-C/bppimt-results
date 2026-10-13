@@ -1,4 +1,6 @@
-# BPPIMT Results
+# MAKAUT Result Parser
+
+(Folder and file names stay `bppimt-results`, so existing sites keep updating; only the display name changed.)
 
 WordPress plugin for the semester results on bppimt.ac.in. It stores each result as structured tables, shows every
 result in one design, lets editors correct tables in a grid, and imports the university's Excel file directly.
