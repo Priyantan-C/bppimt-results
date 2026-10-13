@@ -1,7 +1,7 @@
 === BPPIMT Results ===
 Requires at least: 6.0
 Requires PHP: 7.4
-Stable tag: 1.1.0
+Stable tag: 1.2.0
 
 Stores semester results as tables, shows every result in one design, and imports the university Excel file directly.
 
@@ -29,6 +29,13 @@ The page then shows a Regular result / Review result switch. "Remove review resu
 * One table per course, courses always in the same order. Students with different electives are merged
   into one table; students on a mostly different subject list get a second table.
 * Students stay in the order of the file.
+
+== Results listing ==
+
+Put the shortcode [bppimt_results_list] on the Results page (in a Shortcode block), in place of the old query/filter.
+It opens on the newest academic year; visitors can pick another year or "Show all". A link ending in
+?result_year=2024-25 opens that year. Options: [bppimt_results_list show="all"] opens on all years,
+label="..." changes the "Academic Years" text. New results appear automatically once published.
 
 == Download for visitors ==
 

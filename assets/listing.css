@@ -1,0 +1,72 @@
+/* Results listing ([bppimt_results_list]). Uses the theme palette like the result tables. */
+/* Colours come from the theme: first its own palette variables (GeneratePress style), then the WordPress
+   colour presets of the same name, then fixed fallbacks. So the listing follows whatever site it is on. */
+.bppimt-list {
+	--bppimt-l-head: var(--accent-2, var(--wp--preset--color--accent-2, #160448));
+	--bppimt-l-link: var(--accent, var(--wp--preset--color--accent, #251756));
+	--bppimt-l-active: var(--purple, var(--wp--preset--color--purple, var(--bppimt-l-link)));
+	--bppimt-l-hot: var(--accent-3, var(--wp--preset--color--accent-3, #e85758));
+	--bppimt-l-ink: var(--contrast, var(--wp--preset--color--contrast, #050505));
+	--bppimt-l-muted: var(--contrast-2, var(--wp--preset--color--contrast-2, #575760));
+	--bppimt-l-soft: var(--contrast-3, var(--wp--preset--color--contrast-3, #b2b2be));
+	--bppimt-l-bar: var(--base-2, var(--wp--preset--color--base-2, #f7f8f9));
+	--bppimt-l-card: var(--base-2, var(--wp--preset--color--base-2, #f7f8f9));
+	--bppimt-l-surface: var(--base-3, var(--wp--preset--color--base-3, #ffffff));
+	--bppimt-l-line: var(--light-purple, var(--wp--preset--color--light-purple, #dcdae1));
+	/* Card shape, taken from the site's existing result cards. */
+	--bppimt-l-radius: 6px;
+	--bppimt-l-border: #7d7d7d2b;
+	--bppimt-l-shadow: 0 2px 4px 0 rgba(0, 0, 0, .07);
+	margin: 0 0 2em;
+}
+.bppimt-list *, .bppimt-list *::before, .bppimt-list *::after { box-sizing: border-box; }
+.bppimt-list__bar { display: flex; flex-wrap: wrap; align-items: center; margin: 0 0 24px; background: var(--bppimt-l-bar); box-shadow: 0 1px 0 #e4e4e4; }
+.bppimt-list__label { padding: 10px 12px 10px 15px; font-size: 18px; font-weight: 700; line-height: 20px; }
+.bppimt-list .bppimt-list__years { display: flex; flex-wrap: wrap; margin: 0; padding: 0; list-style: none; }
+.bppimt-list .bppimt-list__years li { margin: 0; padding: 0; }
+.bppimt-list .bppimt-list__year { display: inline-block; padding: 12px 16px; color: var(--bppimt-l-ink); font-size: 15px; line-height: 16px; text-decoration: none; transition: background-color .3s ease, color .3s ease; }
+.bppimt-list .bppimt-list__year:hover, .bppimt-list .bppimt-list__year:focus { background: #eeecf4; color: var(--bppimt-l-ink); }
+.bppimt-list .bppimt-list__year[aria-current="true"] { background: var(--bppimt-l-active); color: #fff; }
+.bppimt-list .bppimt-list__year:focus-visible { outline: 2px solid var(--bppimt-l-hot); outline-offset: -2px; }
+
+.bppimt-list__group[hidden] { display: none; }
+.bppimt-list__group + .bppimt-list__group { margin-top: 32px; }
+.bppimt-list .bppimt-list__heading { margin: 0 0 14px; font-size: 1.35rem; line-height: 1.3; color: var(--bppimt-l-head); }
+.bppimt-list:not(.is-all) .bppimt-list__heading { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.bppimt-list .bppimt-list__grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; margin: 0; padding: 0; list-style: none; }
+.bppimt-list .bppimt-list__item { margin: 0; padding: 0; }
+
+/* Card: semester tile on the left, title and year, arrow. Lifts slightly on hover. */
+.bppimt-list .bppimt-list__card {
+	position: relative; display: flex; align-items: center; gap: 16px; height: 100%; padding: 14px 18px 14px 14px; overflow: hidden;
+	background: var(--bppimt-l-card); border: 1px solid var(--bppimt-l-border); border-radius: var(--bppimt-l-radius); box-shadow: var(--bppimt-l-shadow);
+	color: var(--bppimt-l-link); text-decoration: none;
+	transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+}
+.bppimt-list .bppimt-list__card::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 3px; background: var(--bppimt-l-hot); transform: scaleX(0); transform-origin: left; transition: transform .25s ease; }
+.bppimt-list .bppimt-list__card:hover,
+.bppimt-list .bppimt-list__card:focus-visible { transform: translateY(-2px); background: var(--bppimt-l-surface); border-color: var(--bppimt-l-line); box-shadow: 0 12px 24px -10px rgba(0, 0, 0, .25); color: var(--bppimt-l-link); }
+.bppimt-list .bppimt-list__card:hover::after,
+.bppimt-list .bppimt-list__card:focus-visible::after { transform: scaleX(1); }
+.bppimt-list .bppimt-list__card:focus-visible { outline: 2px solid var(--bppimt-l-hot); outline-offset: 2px; }
+
+.bppimt-list__sem { flex: 0 0 58px; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 58px; height: 58px; border-radius: 4px; background: var(--bppimt-l-head); color: #fff; transition: background-color .2s ease; }
+.bppimt-list__card:hover .bppimt-list__sem, .bppimt-list__card:focus-visible .bppimt-list__sem { background: var(--bppimt-l-active); }
+.bppimt-list__num { font-family: "Noto Serif", serif; font-size: 24px; font-weight: 600; line-height: 1; }
+.bppimt-list__num sup { margin-left: 1px; font-size: 11px; font-weight: 600; vertical-align: super; line-height: 0; }
+.bppimt-list__semword { margin-top: 3px; font-size: 10px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; opacity: .8; }
+
+.bppimt-list__body { display: flex; flex: 1 1 auto; flex-direction: column; align-items: flex-start; gap: 3px; min-width: 0; }
+.bppimt-list__title { font-family: "Noto Serif", serif; font-size: 17px; font-weight: 600; line-height: 1.3; color: var(--bppimt-l-head); }
+.bppimt-list__meta { font-size: 13px; line-height: 1.4; color: var(--bppimt-l-muted); }
+.bppimt-list__tag { margin-top: 4px; padding: 2px 8px; border-radius: 3px; background: #f3eef7; color: var(--bppimt-l-active); font-size: 12px; font-weight: 600; line-height: 1.5; }
+.bppimt-list__arrow { flex: 0 0 auto; color: var(--bppimt-l-soft); transition: transform .2s ease, color .2s ease; }
+.bppimt-list__card:hover .bppimt-list__arrow, .bppimt-list__card:focus-visible .bppimt-list__arrow { color: var(--bppimt-l-hot); transform: translateX(4px); }
+@media (prefers-reduced-motion: reduce) {
+	.bppimt-list .bppimt-list__card, .bppimt-list .bppimt-list__card::after, .bppimt-list__arrow { transition: none; }
+	.bppimt-list .bppimt-list__card:hover, .bppimt-list .bppimt-list__card:focus-visible { transform: none; }
+}
+@media (max-width: 480px) {
+	.bppimt-list .bppimt-list__grid { grid-template-columns: 1fr; gap: 10px; }
+	.bppimt-list__label { width: 100%; padding-bottom: 0; }
+}

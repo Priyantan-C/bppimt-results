@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.2.0 (2026-10-13)
+- Results listing: `[bppimt_results_list]` replaces the Greenshift query/filter on the Results page. Newest academic
+  year first, semesters in order, opens on the latest year with an Academic Years filter and "Show all" (grouped by
+  year). `?result_year=2024-25` opens a year directly. Lists every published result, old or new; drafts are left out.
+  A "Review result available" tag appears on results that have a live review result.
+- Cards: semester tile, title, academic year, arrow; shape taken from the site's existing cards.
+- Colours now fall back through the WordPress colour presets (`--wp--preset--color--*`) as well as the theme's own
+  palette variables, so the styling adapts to other sites.
+
 ## 1.1.0 (2026-10-13)
 - Review results: each semester page can hold a review result next to the regular one. The editor has a
   Regular result / Review result switch with its own upload, grid, saved versions and a "Remove review result"

@@ -27,6 +27,7 @@ between the original page content and the new tables. "Upload result Excel" take
 | `includes/data.php` | Storage, saved versions, regular and review results (`bppimt_results_kinds()`), **the course list** (`bppimt_results_courses()`) |
 | `includes/render.php` | Public page markup, `the_content` filter, `[bppimt_result]` shortcode |
 | `includes/admin.php` | Result Tables page, AJAX endpoints, bulk import page |
+| `includes/listing.php` | `[bppimt_results_list]`: the listing on the Results page |
 | `assets/normalize.js` | **The cleaning rules** applied to an uploaded Excel file |
 | `assets/xlsx-reader.js` | Reads .xlsx in the browser |
 | `assets/admin.js`, `admin.css` | The grid editor |
@@ -34,6 +35,7 @@ between the original page content and the new tables. "Upload result Excel" take
 | `assets/front.js`, `front.css` | Tabs, search, sticky heading row, site styling |
 | `assets/download.js` | "Download Excel", built in the visitor's browser |
 | `assets/import.js` | Tools > Import Result Tables |
+| `assets/listing.js`, `listing.css` | Year filter and cards for the listing |
 | `tools/` | Offline scripts, not part of the installed plugin (see below) |
 
 ## Common changes

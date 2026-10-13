@@ -1,16 +1,16 @@
-/* BPPIMT Results: styled to match the BPPIMT site. It reads the theme's own colour variables
-   (--accent-2, --purple, --base-2 ...), so a change to the site palette carries over. The values after
+/* BPPIMT Results: styled to match the site. It reads the theme's own colour variables (--accent-2, --purple,
+   --base-2 ...), then the WordPress colour presets of the same name, so a change to the site palette carries over. The values after
    each comma are the fallbacks used when the theme does not define that colour. */
 .bppimt-results {
-	--bppimt-head: var(--accent-2, #160448);        /* table heading row: the site header colour */
-	--bppimt-active: var(--purple, #670069);        /* selected course: same as the Academic Years filter */
-	--bppimt-link: var(--accent, #251756);
-	--bppimt-focus: var(--accent-3, #e85758);
-	--bppimt-ink: var(--contrast, #050505);
-	--bppimt-muted: var(--contrast-2, #575760);
-	--bppimt-line: var(--light-purple, #dcdae1);
-	--bppimt-bar: var(--base-2, #f7f8f9);
-	--bppimt-surface: var(--base-3, #ffffff);
+	--bppimt-head: var(--accent-2, var(--wp--preset--color--accent-2, #160448));        /* table heading row: the site header colour */
+	--bppimt-active: var(--purple, var(--wp--preset--color--purple, #670069));        /* selected course: same as the Academic Years filter */
+	--bppimt-link: var(--accent, var(--wp--preset--color--accent, #251756));
+	--bppimt-focus: var(--accent-3, var(--wp--preset--color--accent-3, #e85758));
+	--bppimt-ink: var(--contrast, var(--wp--preset--color--contrast, #050505));
+	--bppimt-muted: var(--contrast-2, var(--wp--preset--color--contrast-2, #575760));
+	--bppimt-line: var(--light-purple, var(--wp--preset--color--light-purple, #dcdae1));
+	--bppimt-bar: var(--base-2, var(--wp--preset--color--base-2, #f7f8f9));
+	--bppimt-surface: var(--base-3, var(--wp--preset--color--base-3, #ffffff));
 	--bppimt-stripe: #f8f7fb;
 	--bppimt-hover: #eeecf4;
 	--bppimt-roll-w: 8.2em;
@@ -25,7 +25,7 @@
 .bppimt-results .screen-reader-text { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
 /* Regular / Review switch, shown only when a page has a review result. */
-.bppimt-results-kinds { --bppimt-head: var(--accent-2, #160448); --bppimt-line: var(--light-purple, #dcdae1); margin: 0 0 2em; min-width: 0; max-width: 100%; }
+.bppimt-results-kinds { --bppimt-head: var(--accent-2, var(--wp--preset--color--accent-2, #160448)); --bppimt-line: var(--light-purple, var(--wp--preset--color--light-purple, #dcdae1)); margin: 0 0 2em; min-width: 0; max-width: 100%; }
 .bppimt-results-kinds__switch { display: flex; flex-wrap: wrap; gap: 0; margin: 0 0 18px; }
 .bppimt-results-kinds:not(.is-ready) .bppimt-results-kinds__switch { display: none; }
 .bppimt-results-kinds .bppimt-results-kinds__btn {
@@ -34,7 +34,7 @@
 }
 .bppimt-results-kinds .bppimt-results-kinds__btn:hover, .bppimt-results-kinds .bppimt-results-kinds__btn:focus { background: var(--bppimt-line); color: var(--bppimt-head); }
 .bppimt-results-kinds .bppimt-results-kinds__btn[aria-selected="true"] { background: var(--bppimt-head); color: #fff; }
-.bppimt-results-kinds .bppimt-results-kinds__btn:focus-visible { outline: 2px solid var(--accent-3, #e85758); outline-offset: 2px; position: relative; z-index: 1; }
+.bppimt-results-kinds .bppimt-results-kinds__btn:focus-visible { outline: 2px solid var(--accent-3, var(--wp--preset--color--accent-3, #e85758)); outline-offset: 2px; position: relative; z-index: 1; }
 .bppimt-results-kinds.is-ready .bppimt-results-kinds__panel:not(.is-active) { display: none; }
 .bppimt-results-kinds.is-ready .bppimt-results-kinds__title { display: none; }
 .bppimt-results-kinds .bppimt-results-kinds__title { margin: 24px 0 12px; font-size: 1.5rem; color: var(--bppimt-head); }
@@ -71,7 +71,7 @@
 .bppimt-results .bppimt-results__download[disabled] { opacity: .7; cursor: progress; }
 .bppimt-results .bppimt-results__search input,
 .bppimt-results .bppimt-results__search input[type="search"] {
-	width: 100%; margin: 0; padding: 8px 12px; border: 1px solid var(--contrast-3, #b2b2be); border-radius: 0; background: var(--bppimt-surface);
+	width: 100%; margin: 0; padding: 8px 12px; border: 1px solid var(--contrast-3, var(--wp--preset--color--contrast-3, #b2b2be)); border-radius: 0; background: var(--bppimt-surface);
 	color: var(--bppimt-ink); font: inherit; font-size: 15px; line-height: 1.3; box-shadow: none;
 }
 .bppimt-results .bppimt-results__search input:focus { outline: 2px solid var(--bppimt-active); outline-offset: 0; border-color: var(--bppimt-active); }
