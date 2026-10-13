@@ -66,7 +66,7 @@ add_shortcode(
 );
 
 /**
- * Build the HTML for one result.
+ * Build the HTML for one result page: the regular result, and the review result when there is one.
  */
 function bppimt_results_render( $post_id ) {
 	$data = bppimt_results_get( $post_id );
@@ -74,13 +74,42 @@ function bppimt_results_render( $post_id ) {
 		return '';
 	}
 	bppimt_results_assets();
+	$review = bppimt_results_get( $post_id, 'review' );
+	if ( ! $review ) {
+		return bppimt_results_render_set( $post_id, $data, 'regular' );
+	}
+	$kinds = bppimt_results_kinds();
+	$out   = '<div class="bppimt-results-kinds" data-bppimt-kinds>';
+	$out  .= '<div class="bppimt-results-kinds__switch" role="tablist" aria-label="Result">';
+	foreach ( array( 'regular', 'review' ) as $n => $kind ) {
+		$out .= sprintf(
+			'<button type="button" role="tab" class="bppimt-results-kinds__btn" id="bppimt-kind-%1$d-%2$s" aria-controls="bppimt-kindpanel-%1$d-%2$s" aria-selected="%3$s" data-kind="%2$s">%4$s</button>',
+			(int) $post_id,
+			esc_attr( $kind ),
+			0 === $n ? 'true' : 'false',
+			esc_html( $kinds[ $kind ] )
+		);
+	}
+	$out .= '</div>';
+	foreach ( array( 'regular' => $data, 'review' => $review ) as $kind => $set ) {
+		$out .= sprintf( '<div class="bppimt-results-kinds__panel" role="tabpanel" id="bppimt-kindpanel-%1$d-%2$s" aria-labelledby="bppimt-kind-%1$d-%2$s" data-kind-panel="%2$s">', (int) $post_id, esc_attr( $kind ) );
+		$out .= '<h2 class="bppimt-results-kinds__title">' . esc_html( $kinds[ $kind ] ) . '</h2>';
+		$out .= bppimt_results_render_set( $post_id, $set, $kind );
+		$out .= '</div>';
+	}
+	return $out . '</div>';
+}
 
+/**
+ * Build the HTML for one set of tables (regular or review).
+ */
+function bppimt_results_render_set( $post_id, $data, $kind ) {
 	// Group tables by course, keeping the stored order.
 	$courses = array();
 	foreach ( $data['tables'] as $t ) {
 		$courses[ $t['course'] ][] = $t;
 	}
-	$uid = 'bppimt-r' . (int) $post_id;
+	$uid = 'bppimt-r' . (int) $post_id . ( 'review' === $kind ? '-review' : '' );
 	$out = '<div class="bppimt-results" data-bppimt-results>';
 	$out .= '<div class="bppimt-results__bar">';
 	$out .= '<div class="bppimt-results__tabs" role="tablist" aria-label="Courses">';
@@ -106,7 +135,7 @@ function bppimt_results_render( $post_id ) {
 	$out .= '<input type="search" placeholder="Search roll number or name" autocomplete="off" inputmode="search"></label>';
 	if ( apply_filters( 'bppimt_results_allow_download', true ) ) {
 		// The file is built in the visitor's browser from this page, so a download costs the server nothing.
-		$out .= '<button type="button" class="bppimt-results__download" data-filename="' . esc_attr( sanitize_title( get_the_title( $post_id ) ) ) . '" title="Download all courses as one Excel file">Download Excel</button>';
+		$out .= '<button type="button" class="bppimt-results__download" data-filename="' . esc_attr( sanitize_title( get_the_title( $post_id ) . ( 'review' === $kind ? ' review' : '' ) ) ) . '" title="Download all courses as one Excel file">Download Excel</button>';
 	}
 	$out .= '</div></div>';
 	$out .= '<p class="bppimt-results__status" aria-live="polite" hidden></p>';

@@ -24,6 +24,22 @@
 .bppimt-results *, .bppimt-results *::before, .bppimt-results *::after { box-sizing: border-box; }
 .bppimt-results .screen-reader-text { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
+/* Regular / Review switch, shown only when a page has a review result. */
+.bppimt-results-kinds { --bppimt-head: var(--accent-2, #160448); --bppimt-line: var(--light-purple, #dcdae1); margin: 0 0 2em; min-width: 0; max-width: 100%; }
+.bppimt-results-kinds__switch { display: flex; flex-wrap: wrap; gap: 0; margin: 0 0 18px; }
+.bppimt-results-kinds:not(.is-ready) .bppimt-results-kinds__switch { display: none; }
+.bppimt-results-kinds .bppimt-results-kinds__btn {
+	appearance: none; margin: 0 -1px 0 0; padding: 11px 22px; border: 1px solid var(--bppimt-head); border-radius: 0; background: #fff; box-shadow: none;
+	color: var(--bppimt-head); font: inherit; font-size: 15px; font-weight: 600; line-height: 1.2; text-transform: none; letter-spacing: 0; cursor: pointer; transition: background-color .3s ease, color .3s ease;
+}
+.bppimt-results-kinds .bppimt-results-kinds__btn:hover, .bppimt-results-kinds .bppimt-results-kinds__btn:focus { background: var(--bppimt-line); color: var(--bppimt-head); }
+.bppimt-results-kinds .bppimt-results-kinds__btn[aria-selected="true"] { background: var(--bppimt-head); color: #fff; }
+.bppimt-results-kinds .bppimt-results-kinds__btn:focus-visible { outline: 2px solid var(--accent-3, #e85758); outline-offset: 2px; position: relative; z-index: 1; }
+.bppimt-results-kinds.is-ready .bppimt-results-kinds__panel:not(.is-active) { display: none; }
+.bppimt-results-kinds.is-ready .bppimt-results-kinds__title { display: none; }
+.bppimt-results-kinds .bppimt-results-kinds__title { margin: 24px 0 12px; font-size: 1.5rem; color: var(--bppimt-head); }
+.bppimt-results-kinds .bppimt-results { margin-bottom: 0; }
+
 /* Course bar: built like the site's Academic Years filter panel. */
 .bppimt-results__bar { display: flex; flex-wrap: wrap; gap: 0 16px; align-items: center; justify-content: space-between; background: var(--bppimt-bar); box-shadow: 0 1px 0 #e4e4e4; }
 .bppimt-results:not(.is-ready) .bppimt-results__bar { display: none; }
@@ -108,7 +124,8 @@
 	.bppimt-results .bppimt-results__table { font-size: 13px; }
 }
 @media print {
-	.bppimt-results__bar { display: none; }
+	.bppimt-results__bar, .bppimt-results-kinds__switch { display: none !important; }
+	.bppimt-results-kinds.is-ready .bppimt-results-kinds__panel:not(.is-active) { display: none; }
 	.bppimt-results.is-ready .bppimt-results__panel:not(.is-active) { display: block; }
 	.bppimt-results.is-ready .bppimt-results__course { display: block !important; }
 	.bppimt-results__scroll { overflow: visible; border: 0; }

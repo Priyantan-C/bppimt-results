@@ -162,7 +162,7 @@
 
 	function tablesFromPage( root ) {
 		return Array.from( root.querySelectorAll( '.bppimt-results__block' ) ).map( ( block ) => {
-			const table = block.querySelector( 'table' );
+			const table = block.querySelector( '.bppimt-results__scroll table' ) || block.querySelector( 'table' ); // not the pinned copy of the heading row
 			const read = ( tr ) => Array.from( tr.children ).map( ( c ) => c.textContent.trim() );
 			return {
 				label: block.getAttribute( 'data-label' ) || 'Result',

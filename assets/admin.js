@@ -11,7 +11,7 @@
 
 	const LEAD = R.LEAD;
 	const TAIL = /^(SGPA\d*|YGPA|DGPA|CGPA|SEMESTER RESULT|OVERALL RESULT|TOTAL MAR POINTS)$/;
-	const state = { tables: [], semester: 0, mode: 'original', history: [], saved: '', active: 0, dirty: false, hasSaved: false, notes: [], source: 'edit', busy: false };
+	const state = { kind: 'regular', hasRegular: false, hasReview: false, tables: [], semester: 0, mode: 'original', history: [], saved: '', active: 0, dirty: false, hasSaved: false, notes: [], source: 'edit', busy: false };
 
 	const esc = ( s ) => String( s == null ? '' : s ).replace( /[&<>"']/g, ( c ) => ( { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ c ] ) );
 	const $ = ( sel ) => app.querySelector( sel );
@@ -21,6 +21,7 @@
 		fd.append( 'action', 'bppimt_results_' + action );
 		fd.append( 'nonce', cfg.nonce );
 		fd.append( 'post_id', cfg.postId );
+		fd.append( 'kind', ( fields && fields.kind ) || state.kind );
 		Object.keys( fields || {} ).forEach( ( k ) => fd.append( k, fields[ k ] ) );
 		return fetch( cfg.ajaxUrl, { method: 'POST', credentials: 'same-origin', body: fd } )
 			.then( ( r ) => r.text() )
@@ -40,11 +41,16 @@
 
 	app.innerHTML =
 		'<div class="bppimt-ed">' +
+		'<div class="bppimt-ed__kinds" role="tablist" aria-label="Which result">' +
+		'<button type="button" role="tab" class="bppimt-ed__kind" data-kind="regular">Regular result <span data-role="count-regular"></span></button>' +
+		'<button type="button" role="tab" class="bppimt-ed__kind" data-kind="review">Review result <span data-role="count-review"></span></button>' +
+		'</div>' +
 		'<div class="bppimt-ed__top">' +
 		'<div class="bppimt-ed__actions">' +
 		'<button type="button" class="button" data-act="upload">Upload result Excel</button>' +
 		'<input type="file" accept=".xlsx" hidden data-role="file">' +
 		'<button type="button" class="button button-primary" data-act="save" disabled>Save tables</button>' +
+		'<button type="button" class="button button-link-delete" data-act="remove-review" hidden>Remove review result</button>' +
 		'<span class="bppimt-ed__status" data-role="status" aria-live="polite"></span>' +
 		'</div>' +
 		'<div class="bppimt-ed__site">' +
@@ -53,7 +59,7 @@
 		'</div>' +
 		'</div>' +
 		'<div class="bppimt-ed__notes" data-role="notes"></div>' +
-		'<div class="bppimt-ed__empty" data-role="empty" hidden><p><strong>No result tables yet.</strong></p><p>Click <em>Upload result Excel</em> and choose the file exactly as the university sends it. The college name, course code and empty columns are removed, course and semester names are shortened, and each course gets its own table. You can then check and correct the tables here before saving.</p></div>' +
+		'<div class="bppimt-ed__empty" data-role="empty" hidden></div>' +
 		'<div data-role="editor" hidden>' +
 		'<div class="bppimt-ed__tabs" data-role="tabs" role="tablist"></div>' +
 		'<div class="bppimt-ed__tablebar">' +
@@ -138,15 +144,41 @@
 		grid.innerHTML = html;
 	}
 
+	const EMPTY = {
+		regular: '<p><strong>No result tables yet.</strong></p><p>Click <em>Upload result Excel</em> and choose the file exactly as the university sends it. The college name, course code and empty columns are removed, course and semester names are shortened, and each course gets its own table. You can then check and correct the tables here before saving.</p>',
+		review: '<p><strong>No review result yet.</strong></p><p>When the university publishes the review result for this semester, click <em>Upload review result Excel</em> and choose the file as it arrives. It is cleaned the same way as the regular result. Once saved, the page shows a <em>Regular result</em> / <em>Review result</em> switch above the tables; the regular result is not changed.</p>',
+		needsRegular: '<p><strong>Save the regular result first.</strong></p><p>The review result is shown next to the regular one, so the page needs its regular result before a review result can be added.</p>',
+	};
+
+	function renderKinds() {
+		app.querySelectorAll( '[data-kind]' ).forEach( ( b ) => {
+			const on = b.dataset.kind === state.kind;
+			b.classList.toggle( 'is-active', on );
+			b.setAttribute( 'aria-selected', on ? 'true' : 'false' );
+		} );
+		$( '[data-role="count-regular"]' ).textContent = state.hasRegular ? '' : '(none)';
+		$( '[data-role="count-review"]' ).textContent = state.hasReview ? '' : '(none)';
+		const review = state.kind === 'review';
+		const blocked = review && ! state.hasRegular;
+		$( '[data-act="upload"]' ).textContent = review ? 'Upload review result Excel' : 'Upload result Excel';
+		$( '[data-act="upload"]' ).disabled = blocked;
+		$( '[data-act="remove-review"]' ).hidden = ! review || ! state.hasSaved;
+		$( '[data-role="empty"]' ).innerHTML = blocked ? EMPTY.needsRegular : EMPTY[ state.kind ];
+		const base = cfg.view + ( cfg.view.indexOf( '?' ) < 0 ? '?' : '&' ) + 'bppimt_preview=1';
+		$( '[data-role="preview"]' ).href = base + ( review ? '#review' : '' );
+		$( '[data-role="preview"]' ).textContent = review ? 'Preview review result' : 'Preview new tables';
+	}
+
 	function render() {
 		const has = state.tables.length > 0;
+		renderKinds();
 		if ( state.active >= state.tables.length ) {
 			state.active = Math.max( 0, state.tables.length - 1 );
 		}
 		$( '[data-role="empty"]' ).hidden = has;
 		$( '[data-role="editor"]' ).hidden = ! has;
 		$( '[data-role="mode"]' ).value = state.mode;
-		$( '[data-role="preview"]' ).hidden = ! state.hasSaved;
+		$( '[data-role="preview"]' ).hidden = ! ( state.kind === 'review' ? state.hasReview : state.hasRegular );
 		const hist = $( '[data-role="history"]' );
 		hist.innerHTML = state.history.map( ( h ) => '<option value="' + h.id + '">' + esc( h.label ) + '</option>' ).join( '' );
 		$( '[data-role="foot"]' ).hidden = ! state.history.length;
@@ -156,16 +188,47 @@
 		refreshStatus();
 	}
 
-	function applyServer( data ) {
+	function applyServer( data, reset ) {
 		state.mode = data.mode;
 		state.history = data.history || [];
 		state.saved = data.saved || '';
 		state.hasSaved = !! data.data;
+		state.hasRegular = !! data.hasRegular;
+		state.hasReview = !! data.hasReview;
 		if ( data.data ) {
 			state.tables = data.data.tables;
 			state.semester = data.data.semester || 0;
+		} else if ( reset ) {
+			state.tables = [];
 		}
 	}
+
+	/* Switch the editor between the regular and the review result. */
+	app.addEventListener( 'click', ( e ) => {
+		const b = e.target.closest( '[data-kind]' );
+		if ( ! b || b.dataset.kind === state.kind || state.busy ) {
+			return;
+		}
+		stopEdit( true );
+		if ( state.dirty && ! window.confirm( 'You have unsaved changes in the ' + ( state.kind === 'review' ? 'review' : 'regular' ) + ' result. Switch anyway and lose them?' ) ) {
+			return;
+		}
+		state.kind = b.dataset.kind;
+		state.dirty = false;
+		state.active = 0;
+		state.source = 'edit';
+		state.notes = [];
+		setStatus( 'Loading…' );
+		post( 'load' )
+			.then( ( data ) => {
+				applyServer( data, true );
+				render();
+			} )
+			.catch( ( err ) => {
+				state.notes = [ { level: 'error', text: err.message } ];
+				render();
+			} );
+	} );
 
 	/* ----------------------------------------------------------- editing */
 
@@ -404,6 +467,20 @@
 			state.active = state.tables.length - 1;
 			markDirty();
 			render();
+		} else if ( act === 'remove-review' ) {
+			if ( window.confirm( 'Remove the review result from this page? The page goes back to showing only the regular result. The removed tables stay under Earlier versions.' ) ) {
+				post( 'remove' )
+					.then( ( data ) => {
+						applyServer( data, true );
+						state.dirty = false;
+						state.notes = [ { level: 'ok', text: 'The review result was removed from the page.' } ];
+						render();
+					} )
+					.catch( ( err ) => {
+						state.notes = [ { level: 'error', text: err.message } ];
+						renderNotes();
+					} );
+			}
 		} else if ( act === 'load-version' ) {
 			loadVersion();
 		}
@@ -522,7 +599,9 @@
 				applyServer( data );
 				state.notes = checks();
 				if ( state.mode !== 'new' ) {
-					state.notes.unshift( { level: 'info', text: ( first ? 'Tables saved. ' : '' ) + 'The website still shows the original page content. Open "Preview new tables" to check them, then set "Website shows" to "the new result tables".' } );
+					state.notes.unshift( { level: 'info', text: ( first ? 'Tables saved. ' : '' ) + 'The website still shows the original page content. Open the preview to check the tables, then set "Website shows" to "the new result tables".' } );
+				} else if ( state.kind === 'review' && first ) {
+					state.notes.unshift( { level: 'ok', text: 'Review result saved. The page now shows a Regular result / Review result switch above the tables.' } );
 				}
 				render();
 			} )
@@ -587,9 +666,12 @@
 		}
 	} );
 
+	if ( window.location.hash === '#review' ) {
+		state.kind = 'review';
+	}
 	post( 'load' )
 		.then( ( data ) => {
-			applyServer( data );
+			applyServer( data, true );
 			render();
 		} )
 		.catch( ( err ) => {

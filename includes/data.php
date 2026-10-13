@@ -109,9 +109,34 @@ function bppimt_results_sanitize( $raw ) {
 	);
 }
 
+/**
+ * Kinds of result a page can hold. 'regular' is the result as first published; 'review' is the
+ * post-review result for the students whose papers were reviewed. Each is stored and versioned separately.
+ */
+function bppimt_results_kinds() {
+	return array(
+		'regular' => 'Regular result',
+		'review'  => 'Review result',
+	);
+}
+
+function bppimt_results_kind( $kind ) {
+	return 'review' === $kind ? 'review' : 'regular';
+}
+
+/** Meta key for a kind. The regular result keeps the original keys, so existing data is untouched. */
+function bppimt_results_key( $kind, $what = 'data' ) {
+	$kind = bppimt_results_kind( $kind );
+	$tail = 'review' === $kind ? '_review' : '';
+	if ( 'history' === $what ) {
+		return BPPIMT_RESULTS_HISTORY . $tail;
+	}
+	return BPPIMT_RESULTS_META . $tail . ( 'info' === $what ? '_info' : '' );
+}
+
 /** Stored result data for a post, or null. */
-function bppimt_results_get( $post_id ) {
-	$json = get_post_meta( $post_id, BPPIMT_RESULTS_META, true );
+function bppimt_results_get( $post_id, $kind = 'regular' ) {
+	$json = get_post_meta( $post_id, bppimt_results_key( $kind ), true );
 	if ( ! $json ) {
 		return null;
 	}
@@ -119,7 +144,7 @@ function bppimt_results_get( $post_id ) {
 	return ( is_array( $data ) && ! empty( $data['tables'] ) ) ? $data : null;
 }
 
-/** 'new' (plugin tables) or 'original' (the post's own content). */
+/** 'new' (plugin tables) or 'original' (the post's own content). Applies to the whole page. */
 function bppimt_results_mode( $post_id ) {
 	return 'new' === get_post_meta( $post_id, BPPIMT_RESULTS_MODE, true ) ? 'new' : 'original';
 }
@@ -132,35 +157,41 @@ function bppimt_results_counts( $data ) {
 	return array( count( $data['tables'] ), $rows );
 }
 
+/** Move the current version of a kind into its saved versions. */
+function bppimt_results_archive( $post_id, $kind ) {
+	$old = get_post_meta( $post_id, bppimt_results_key( $kind ), true );
+	if ( ! $old ) {
+		return;
+	}
+	$info  = get_post_meta( $post_id, bppimt_results_key( $kind, 'info' ), true );
+	$entry = array(
+		'time'   => isset( $info['time'] ) ? (int) $info['time'] : time(),
+		'user'   => isset( $info['user'] ) ? (int) $info['user'] : 0,
+		'source' => isset( $info['source'] ) ? $info['source'] : 'edit',
+		'data'   => $old,
+	);
+	add_post_meta( $post_id, bppimt_results_key( $kind, 'history' ), wp_slash( wp_json_encode( $entry, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES ) ) );
+	$ids = bppimt_results_history_ids( $post_id, $kind );
+	while ( count( $ids ) > BPPIMT_RESULTS_KEEP ) {
+		delete_metadata_by_mid( 'post', array_shift( $ids ) );
+	}
+}
+
 /**
  * Save result data, keeping the previous versions so an edit can be undone.
  *
  * @return bool True when something changed.
  */
-function bppimt_results_save( $post_id, array $data, $source = 'edit' ) {
+function bppimt_results_save( $post_id, array $data, $source = 'edit', $kind = 'regular' ) {
 	$json = wp_json_encode( $data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES );
-	$old  = get_post_meta( $post_id, BPPIMT_RESULTS_META, true );
-	if ( $old === $json ) {
+	if ( get_post_meta( $post_id, bppimt_results_key( $kind ), true ) === $json ) {
 		return false;
 	}
-	if ( $old ) {
-		$info  = get_post_meta( $post_id, BPPIMT_RESULTS_META . '_info', true );
-		$entry = array(
-			'time'   => isset( $info['time'] ) ? (int) $info['time'] : time(),
-			'user'   => isset( $info['user'] ) ? (int) $info['user'] : 0,
-			'source' => isset( $info['source'] ) ? $info['source'] : 'edit',
-			'data'   => $old,
-		);
-		add_post_meta( $post_id, BPPIMT_RESULTS_HISTORY, wp_slash( wp_json_encode( $entry, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES ) ) );
-		$ids = bppimt_results_history_ids( $post_id );
-		while ( count( $ids ) > BPPIMT_RESULTS_KEEP ) {
-			delete_metadata_by_mid( 'post', array_shift( $ids ) );
-		}
-	}
-	update_post_meta( $post_id, BPPIMT_RESULTS_META, wp_slash( $json ) );
+	bppimt_results_archive( $post_id, $kind );
+	update_post_meta( $post_id, bppimt_results_key( $kind ), wp_slash( $json ) );
 	update_post_meta(
 		$post_id,
-		BPPIMT_RESULTS_META . '_info',
+		bppimt_results_key( $kind, 'info' ),
 		array(
 			'time'   => time(),
 			'user'   => get_current_user_id(),
@@ -170,19 +201,26 @@ function bppimt_results_save( $post_id, array $data, $source = 'edit' ) {
 	return true;
 }
 
+/** Remove a kind from the page. The removed tables stay in its saved versions. */
+function bppimt_results_remove( $post_id, $kind ) {
+	bppimt_results_archive( $post_id, $kind );
+	delete_post_meta( $post_id, bppimt_results_key( $kind ) );
+	delete_post_meta( $post_id, bppimt_results_key( $kind, 'info' ) );
+}
+
 /** Meta ids of saved earlier versions, oldest first. */
-function bppimt_results_history_ids( $post_id ) {
+function bppimt_results_history_ids( $post_id, $kind = 'regular' ) {
 	global $wpdb;
 	return array_map(
 		'intval',
-		$wpdb->get_col( $wpdb->prepare( "SELECT meta_id FROM {$wpdb->postmeta} WHERE post_id = %d AND meta_key = %s ORDER BY meta_id ASC", $post_id, BPPIMT_RESULTS_HISTORY ) )
+		$wpdb->get_col( $wpdb->prepare( "SELECT meta_id FROM {$wpdb->postmeta} WHERE post_id = %d AND meta_key = %s ORDER BY meta_id ASC", $post_id, bppimt_results_key( $kind, 'history' ) ) )
 	);
 }
 
 /** Earlier versions, newest first, without the heavy data. */
-function bppimt_results_history( $post_id ) {
+function bppimt_results_history( $post_id, $kind = 'regular' ) {
 	$out = array();
-	foreach ( array_reverse( bppimt_results_history_ids( $post_id ) ) as $mid ) {
+	foreach ( array_reverse( bppimt_results_history_ids( $post_id, $kind ) ) as $mid ) {
 		$meta  = get_metadata_by_mid( 'post', $mid );
 		$entry = $meta ? json_decode( $meta->meta_value, true ) : null;
 		if ( ! is_array( $entry ) || empty( $entry['data'] ) ) {

@@ -192,7 +192,43 @@
 		setTop();
 	}
 
+	/* Regular / Review switch. "#review" in the address opens the review result directly. */
+	function setupKinds( wrap ) {
+		const btns = Array.from( wrap.querySelectorAll( '.bppimt-results-kinds__btn' ) );
+		const panels = Array.from( wrap.querySelectorAll( '[data-kind-panel]' ) );
+		function show( kind, focus ) {
+			btns.forEach( ( b ) => {
+				const on = b.dataset.kind === kind;
+				b.setAttribute( 'aria-selected', on ? 'true' : 'false' );
+				b.tabIndex = on ? 0 : -1;
+				if ( on && focus ) {
+					b.focus();
+				}
+			} );
+			panels.forEach( ( p ) => p.classList.toggle( 'is-active', p.dataset.kindPanel === kind ) );
+		}
+		btns.forEach( ( b, i ) => {
+			b.addEventListener( 'click', () => {
+				show( b.dataset.kind );
+				if ( window.history && history.replaceState ) {
+					history.replaceState( null, '', b.dataset.kind === 'review' ? '#review' : window.location.pathname + window.location.search );
+				}
+			} );
+			b.addEventListener( 'keydown', ( e ) => {
+				const step = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
+				if ( step ) {
+					e.preventDefault();
+					btns[ ( i + step + btns.length ) % btns.length ].click();
+					show( btns[ ( i + step + btns.length ) % btns.length ].dataset.kind, true );
+				}
+			} );
+		} );
+		wrap.classList.add( 'is-ready' );
+		show( window.location.hash === '#review' ? 'review' : 'regular' );
+	}
+
 	function init() {
+		document.querySelectorAll( '[data-bppimt-kinds]' ).forEach( setupKinds );
 		document.querySelectorAll( '[data-bppimt-results]' ).forEach( ( root ) => {
 			setup( root );
 			stickyHeads( root );

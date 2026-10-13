@@ -1,7 +1,7 @@
 === BPPIMT Results ===
 Requires at least: 6.0
 Requires PHP: 7.4
-Stable tag: 1.0.5
+Stable tag: 1.1.0
 
 Stores semester results as tables, shows every result in one design, and imports the university Excel file directly.
 
@@ -15,6 +15,11 @@ New result:
 Correcting a result:
 Results > Result Tables > Edit tables. Click a cell, type, press Enter. Click "Save tables".
 The last 5 saved versions are kept under "Earlier versions".
+
+Review result:
+Open the result in Result Tables, click "Review result" at the top, upload the review Excel file, Save tables.
+The page then shows a Regular result / Review result switch. "Remove review result" takes it off again
+(the removed tables stay under Earlier versions). A link ending in #review opens the review result directly.
 
 == What the upload does ==
 

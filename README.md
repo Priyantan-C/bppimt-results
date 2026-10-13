@@ -24,7 +24,7 @@ between the original page content and the new tables. "Upload result Excel" take
 | Path | What it is |
 |---|---|
 | `bppimt-results.php` | Plugin header and version |
-| `includes/data.php` | Storage, saved versions, **the course list** (`bppimt_results_courses()`) |
+| `includes/data.php` | Storage, saved versions, regular and review results (`bppimt_results_kinds()`), **the course list** (`bppimt_results_courses()`) |
 | `includes/render.php` | Public page markup, `the_content` filter, `[bppimt_result]` shortcode |
 | `includes/admin.php` | Result Tables page, AJAX endpoints, bulk import page |
 | `assets/normalize.js` | **The cleaning rules** applied to an uploaded Excel file |

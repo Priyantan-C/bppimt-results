@@ -55,3 +55,9 @@
 .bppimt-list [data-role="switch"] { white-space: nowrap; }
 .bppimt-pill { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 12px; font-weight: 600; margin-right: 6px; }
 .bppimt-pill.is-new { background: #edfaef; color: #007017; } .bppimt-pill.is-original { background: #fcf9e8; color: #996800; } .bppimt-pill.is-none { background: #f0f0f1; color: #646970; }
+.bppimt-ed__kinds { display: flex; gap: 0; margin: 0 0 14px; }
+.bppimt-ed__kind { border: 1px solid #1f3864; background: #fff; color: #1f3864; padding: 8px 18px; margin-right: -1px; font: inherit; font-weight: 600; cursor: pointer; }
+.bppimt-ed__kind:first-child { border-radius: 4px 0 0 4px; } .bppimt-ed__kind:last-child { border-radius: 0 4px 4px 0; }
+.bppimt-ed__kind.is-active { background: #1f3864; color: #fff; }
+.bppimt-ed__kind span { font-weight: 400; opacity: .75; }
+.bppimt-ed__kind:focus-visible { outline: 2px solid #2271b1; outline-offset: 1px; position: relative; }

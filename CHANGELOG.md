@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.1.0 (2026-10-13)
+- Review results: each semester page can hold a review result next to the regular one. The editor has a
+  Regular result / Review result switch with its own upload, grid, saved versions and a "Remove review result"
+  button. The public page shows a Regular result / Review result switch only when a review result exists;
+  a link ending in `#review` opens the review result directly. The regular result is never changed.
+- Fix: "Download Excel" did nothing since 1.0.5 (it read the pinned copy of the heading row instead of the table).
+
 ## 1.0.5 (2026-10-06)
 - Heading row is pinned by the browser (no script while scrolling), fixing the stutter.
 - Turns off the page builder's own scroll box around the result on pages showing the new tables.

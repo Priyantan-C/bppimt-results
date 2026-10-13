@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       BPPIMT Results
  * Description:       Stores semester results as structured tables, shows every result in one uniform design, lets editors fix tables in a grid, and imports the university Excel file directly.
- * Version:           1.0.5
+ * Version:           1.1.0
  * Requires at least: 6.0
  * Requires PHP:      7.4
  * Author:            SynerByte Tech LLP
@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'BPPIMT_RESULTS_VERSION', '1.0.5' );
+define( 'BPPIMT_RESULTS_VERSION', '1.1.0' );
 define( 'BPPIMT_RESULTS_FILE', __FILE__ );
 define( 'BPPIMT_RESULTS_META', '_bppimt_result_data' );
 define( 'BPPIMT_RESULTS_MODE', '_bppimt_result_display' );

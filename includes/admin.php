@@ -26,6 +26,11 @@ function bppimt_results_status_text( $post_id ) {
 	}
 	list( $tables, $rows ) = bppimt_results_counts( $data );
 	$counts                = sprintf( '%d tables, %d students.', $tables, $rows );
+	$review                = bppimt_results_get( $post_id, 'review' );
+	if ( $review ) {
+		list( , $rrows ) = bppimt_results_counts( $review );
+		$counts         .= sprintf( ' Review result: %d students.', $rrows );
+	}
 	if ( 'new' === bppimt_results_mode( $post_id ) ) {
 		return array( 'new', 'The website shows the result tables. ' . $counts );
 	}
@@ -255,13 +260,21 @@ function bppimt_results_ajax_post() {
 	return $post_id;
 }
 
-function bppimt_results_state( $post_id ) {
-	$info = get_post_meta( $post_id, BPPIMT_RESULTS_META . '_info', true );
+/** Which result the request is about: the regular one (default) or the review one. */
+function bppimt_results_ajax_kind() {
+	return bppimt_results_kind( isset( $_POST['kind'] ) ? sanitize_key( $_POST['kind'] ) : 'regular' ); // phpcs:ignore WordPress.Security.NonceVerification -- checked in bppimt_results_ajax_post().
+}
+
+function bppimt_results_state( $post_id, $kind = 'regular' ) {
+	$info = get_post_meta( $post_id, bppimt_results_key( $kind, 'info' ), true );
 	$user = ! empty( $info['user'] ) ? get_userdata( $info['user'] ) : null;
 	return array(
-		'data'    => bppimt_results_get( $post_id ),
-		'mode'    => bppimt_results_mode( $post_id ),
-		'history' => bppimt_results_history( $post_id ),
+		'kind'       => $kind,
+		'data'       => bppimt_results_get( $post_id, $kind ),
+		'hasRegular' => (bool) bppimt_results_get( $post_id ),
+		'hasReview'  => (bool) bppimt_results_get( $post_id, 'review' ),
+		'mode'       => bppimt_results_mode( $post_id ),
+		'history'    => bppimt_results_history( $post_id, $kind ),
 		'saved'   => ! empty( $info['time'] ) ? sprintf( 'Last saved %s%s', wp_date( 'j M Y, g:i a', (int) $info['time'] ), $user ? ' by ' . $user->display_name : '' ) : '',
 	);
 }
@@ -269,7 +282,7 @@ function bppimt_results_state( $post_id ) {
 add_action(
 	'wp_ajax_bppimt_results_load',
 	function () {
-		wp_send_json_success( bppimt_results_state( bppimt_results_ajax_post() ) );
+		wp_send_json_success( bppimt_results_state( bppimt_results_ajax_post(), bppimt_results_ajax_kind() ) );
 	}
 );
 
@@ -282,8 +295,12 @@ add_action(
 		if ( is_wp_error( $data ) ) {
 			wp_send_json_error( array( 'message' => $data->get_error_message() ), 400 );
 		}
+		$kind   = bppimt_results_ajax_kind();
+		if ( 'review' === $kind && ! bppimt_results_get( $post_id ) ) {
+			wp_send_json_error( array( 'message' => 'Save the regular result first. The review result is shown next to it.' ), 400 );
+		}
 		$source = isset( $_POST['source'] ) ? sanitize_key( $_POST['source'] ) : 'edit';
-		bppimt_results_save( $post_id, $data, $source );
+		bppimt_results_save( $post_id, $data, $source, $kind );
 		if ( isset( $_POST['mode'] ) && in_array( $_POST['mode'], array( 'new', 'original' ), true ) ) {
 			update_post_meta( $post_id, BPPIMT_RESULTS_MODE, sanitize_key( $_POST['mode'] ) );
 		}
@@ -293,7 +310,23 @@ add_action(
 			update_post_meta( $post_id, BPPIMT_RESULTS_MODE, $has_content ? 'original' : 'new' );
 		}
 		clean_post_cache( $post_id );
-		wp_send_json_success( bppimt_results_state( $post_id ) );
+		do_action( 'bppimt_results_changed', $post_id );
+		wp_send_json_success( bppimt_results_state( $post_id, $kind ) );
+	}
+);
+
+/** Remove the review result from a page (it stays in the review's saved versions). */
+add_action(
+	'wp_ajax_bppimt_results_remove',
+	function () {
+		$post_id = bppimt_results_ajax_post();
+		if ( 'review' !== bppimt_results_ajax_kind() ) {
+			wp_send_json_error( array( 'message' => 'Only the review result can be removed here.' ), 400 );
+		}
+		bppimt_results_remove( $post_id, 'review' );
+		clean_post_cache( $post_id );
+		do_action( 'bppimt_results_changed', $post_id );
+		wp_send_json_success( bppimt_results_state( $post_id, 'review' ) );
 	}
 );
 
@@ -317,7 +350,7 @@ add_action(
 		$post_id = bppimt_results_ajax_post();
 		$mid     = isset( $_POST['version'] ) ? (int) $_POST['version'] : 0;
 		$meta    = $mid ? get_metadata_by_mid( 'post', $mid ) : null;
-		if ( ! $meta || (int) $meta->post_id !== $post_id || BPPIMT_RESULTS_HISTORY !== $meta->meta_key ) {
+		if ( ! $meta || (int) $meta->post_id !== $post_id || bppimt_results_key( bppimt_results_ajax_kind(), 'history' ) !== $meta->meta_key ) {
 			wp_send_json_error( array( 'message' => 'That earlier version is no longer available.' ), 404 );
 		}
 		$entry = json_decode( $meta->meta_value, true );
