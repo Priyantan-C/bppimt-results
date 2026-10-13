@@ -517,7 +517,7 @@ function bppimt_results_column_value( $column, $post_id ) {
 	}
 	list( $state, $text ) = bppimt_results_status_text( $post_id );
 	$new                  = 'new' === $state;
-	printf( '<span style="color:%s">%s</span>', $new ? '#007017' : '#996800', esc_html( $text ) );
+	printf( '<span style="color:%s">%s</span>', $new ? 'var(--sa-success, #007017)' : 'var(--sa-warning, #996800)', esc_html( $text ) );
 	if ( 'none' === $state ) {
 		return;
 	}

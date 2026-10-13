@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.3.2 (2026-10-13)
+- Admin screens follow the active admin skin in light and dark mode. Colours come from Slate Admin's `--sa-*`
+  variables when present, otherwise from standard WordPress admin colours, and every panel sets its background and
+  text colour together, so text can no longer disappear (Result Tables list, table editor, import page, the status
+  column under All Results).
+
 ## 1.3.1 (2026-10-13)
 - Renamed to **MAKAUT Result Parser**. Only the display name changed: the plugin's folder and file stay
   `bppimt-results`, so installed sites keep receiving updates and nothing needs reinstalling. Stored results are untouched.
