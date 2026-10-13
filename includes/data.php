@@ -136,12 +136,22 @@ function bppimt_results_key( $kind, $what = 'data' ) {
 
 /** Stored result data for a post, or null. */
 function bppimt_results_get( $post_id, $kind = 'regular' ) {
-	$json = get_post_meta( $post_id, bppimt_results_key( $kind ), true );
-	if ( ! $json ) {
-		return null;
+	$key = (int) $post_id . ':' . bppimt_results_kind( $kind );
+	if ( array_key_exists( $key, $GLOBALS['bppimt_results_memo'] ) ) {
+		return $GLOBALS['bppimt_results_memo'][ $key ];
 	}
-	$data = json_decode( $json, true );
-	return ( is_array( $data ) && ! empty( $data['tables'] ) ) ? $data : null;
+	$json = get_post_meta( $post_id, bppimt_results_key( $kind ), true );
+	$data = $json ? json_decode( $json, true ) : null;
+	$data = ( is_array( $data ) && ! empty( $data['tables'] ) ) ? $data : null;
+	$GLOBALS['bppimt_results_memo'][ $key ] = $data; // the same page asks several times while rendering
+	return $data;
+}
+
+$GLOBALS['bppimt_results_memo'] = array();
+
+/** Forget the decoded copy after a change. */
+function bppimt_results_forget( $post_id, $kind ) {
+	unset( $GLOBALS['bppimt_results_memo'][ (int) $post_id . ':' . bppimt_results_kind( $kind ) ] );
 }
 
 /** 'new' (plugin tables) or 'original' (the post's own content). Applies to the whole page. */
@@ -189,6 +199,7 @@ function bppimt_results_save( $post_id, array $data, $source = 'edit', $kind = '
 	}
 	bppimt_results_archive( $post_id, $kind );
 	update_post_meta( $post_id, bppimt_results_key( $kind ), wp_slash( $json ) );
+	bppimt_results_forget( $post_id, $kind );
 	update_post_meta(
 		$post_id,
 		bppimt_results_key( $kind, 'info' ),
@@ -205,6 +216,7 @@ function bppimt_results_save( $post_id, array $data, $source = 'edit', $kind = '
 function bppimt_results_remove( $post_id, $kind ) {
 	bppimt_results_archive( $post_id, $kind );
 	delete_post_meta( $post_id, bppimt_results_key( $kind ) );
+	bppimt_results_forget( $post_id, $kind );
 	delete_post_meta( $post_id, bppimt_results_key( $kind, 'info' ) );
 }
 

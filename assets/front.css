@@ -88,7 +88,7 @@
 .bppimt-results .bppimt-results__course { margin: 24px 0 0; font-size: 1.35rem; line-height: 1.3; color: var(--bppimt-link); }
 .bppimt-results.is-ready:not(.is-searching) .bppimt-results__course { display: none; }
 .bppimt-results .bppimt-results__label { margin: 20px 0 0; font-size: 1.1rem; line-height: 1.3; color: var(--bppimt-ink); }
-.bppimt-results__label span { margin-left: 6px; color: var(--bppimt-muted); font-family: Inter, sans-serif; font-weight: 400; font-size: 14px; }
+.bppimt-results__label span { margin-left: 6px; color: var(--bppimt-muted); font-weight: 400; font-size: 14px; }
 
 /* The table is shown at its full length and scrolls with the page. Only sideways scrolling happens inside this box. */
 .bppimt-results__scroll { margin-top: 16px; overflow-x: auto; overflow-y: hidden; border: 1px solid var(--bppimt-line); border-radius: 0; background: var(--bppimt-surface); -webkit-overflow-scrolling: touch; }

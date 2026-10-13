@@ -52,12 +52,12 @@
 
 .bppimt-list__sem { flex: 0 0 58px; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 58px; height: 58px; border-radius: 4px; background: var(--bppimt-l-head); color: #fff; transition: background-color .2s ease; }
 .bppimt-list__card:hover .bppimt-list__sem, .bppimt-list__card:focus-visible .bppimt-list__sem { background: var(--bppimt-l-active); }
-.bppimt-list__num { font-family: "Noto Serif", serif; font-size: 24px; font-weight: 600; line-height: 1; }
+.bppimt-list__num { font-size: 24px; font-weight: 600; line-height: 1; }
 .bppimt-list__num sup { margin-left: 1px; font-size: 11px; font-weight: 600; vertical-align: super; line-height: 0; }
 .bppimt-list__semword { margin-top: 3px; font-size: 10px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; opacity: .8; }
 
 .bppimt-list__body { display: flex; flex: 1 1 auto; flex-direction: column; align-items: flex-start; gap: 3px; min-width: 0; }
-.bppimt-list__title { font-family: "Noto Serif", serif; font-size: 17px; font-weight: 600; line-height: 1.3; color: var(--bppimt-l-head); }
+.bppimt-list .bppimt-list__title { margin: 0; padding: 0; font-size: 17px; font-weight: 600; line-height: 1.3; letter-spacing: 0; text-transform: none; color: var(--bppimt-l-head); }
 .bppimt-list__meta { font-size: 13px; line-height: 1.4; color: var(--bppimt-l-muted); }
 .bppimt-list__tag { margin-top: 4px; padding: 2px 8px; border-radius: 3px; background: #f3eef7; color: var(--bppimt-l-active); font-size: 12px; font-weight: 600; line-height: 1.5; }
 .bppimt-list__arrow { flex: 0 0 auto; color: var(--bppimt-l-soft); transition: transform .2s ease, color .2s ease; }

@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.2.1 (2026-10-13)
+- Fonts: the plugin names no fonts of its own; everything uses the site's fonts. Listing card titles are headings,
+  so they take the theme's heading font on any site.
+- Lighter: a result's stored tables are decoded once per page view, and rebuilding the listing no longer opens
+  every result's tables.
+
 ## 1.2.0 (2026-10-13)
 - Results listing: `[bppimt_results_list]` replaces the Greenshift query/filter on the Results page. Newest academic
   year first, semesters in order, opens on the latest year with an Academic Years filter and "Show all" (grouped by

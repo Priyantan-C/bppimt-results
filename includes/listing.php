@@ -44,14 +44,19 @@ function bppimt_results_listing_items() {
 			$year = $m[1];
 		}
 		$year = $year ? $year : 'Other';
-		$data = bppimt_results_get( $p->ID );
-		$sem  = $data && ! empty( $data['semester'] ) ? (int) $data['semester'] : ( preg_match( '/^\s*(\d{1,2})(?:st|nd|rd|th)\b/i', $p->post_title, $m ) ? (int) $m[1] : 99 );
+		// The semester comes from the title; the stored tables are only opened when the title does not say.
+		if ( preg_match( '/^\s*([1-9]|10)(?:st|nd|rd|th)\s+sem/i', $p->post_title, $m ) ) {
+			$sem = (int) $m[1];
+		} else {
+			$data = bppimt_results_get( $p->ID );
+			$sem  = $data && ! empty( $data['semester'] ) ? (int) $data['semester'] : 99;
+		}
 		$years[ $year ][] = array(
 			'id'     => $p->ID,
 			'title'  => get_the_title( $p ),
 			'url'    => get_permalink( $p ),
 			'sem'    => $sem,
-			'review' => 'new' === bppimt_results_mode( $p->ID ) && (bool) bppimt_results_get( $p->ID, 'review' ),
+			'review' => 'new' === bppimt_results_mode( $p->ID ) && '' !== (string) get_post_meta( $p->ID, bppimt_results_key( 'review' ), true ),
 		);
 	}
 	uksort(
@@ -152,7 +157,7 @@ add_shortcode(
 				$sem   = $it['sem'] < 99 ? $it['sem'] : 0;
 				$title = trim( preg_replace( '/\s*\d{4}-\d{2}\s*$/', '', $it['title'] ) ); // the year is shown on its own line
 				$out  .= sprintf(
-					'<li class="bppimt-list__item"><a class="bppimt-list__card" href="%1$s">%2$s<span class="bppimt-list__body"><span class="bppimt-list__title">%3$s</span><span class="bppimt-list__meta">%4$s</span>%5$s</span><svg class="bppimt-list__arrow" aria-hidden="true" viewBox="0 0 24 24" width="20" height="20"><path d="M5 12h13M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a></li>',
+					'<li class="bppimt-list__item"><a class="bppimt-list__card" href="%1$s">%2$s<span class="bppimt-list__body"><h3 class="bppimt-list__title">%3$s</h3><span class="bppimt-list__meta">%4$s</span>%5$s</span><svg class="bppimt-list__arrow" aria-hidden="true" viewBox="0 0 24 24" width="20" height="20"><path d="M5 12h13M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a></li>',
 					esc_url( $it['url'] ),
 					$sem ? sprintf( '<span class="bppimt-list__sem" aria-hidden="true"><span class="bppimt-list__num">%d<sup>%s</sup></span><span class="bppimt-list__semword">Sem</span></span>', $sem, isset( $ord[ $sem ] ) ? $ord[ $sem ] : 'th' ) : '',
 					esc_html( '' !== $title ? $title : $it['title'] ),
